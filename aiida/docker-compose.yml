@@ -1,0 +1,101 @@
+version: "2.1"
+
+services:
+    # PostgreSQL database
+    aiida.postgres:
+        image: postgres:13
+        hostname: postgres
+        container_name: aiida.postgres
+        environment:
+            - POSTGRES_USER=aiida
+            - POSTGRES_PASSWORD=aiida
+            - POSTGRES_DB=aiida
+        expose:
+            - "5432"
+
+    # RabbitMQ
+    aiida.rabbitmq:
+        hostname: rabbitmq
+        image: rabbitmq
+        container_name: aiida.rabbitmq
+        environment:
+            - RABBITMQ_DEFAULT_USER=aiida
+            - RABBITMQ_DEFAULT_PASS=aiida
+        expose:
+            - "5672" # we forward this port because it's useful for debugging
+            - "15672" # here, we can access rabbitmq management plugin
+
+    aiida.container:
+        build: .
+        hostname: aiida.container
+        container_name: aiida.container
+        command: sh /workdir/aiida_config.sh
+        links:
+            - aiida.postgres
+            - aiida.rabbitmq
+            - aiida.qe
+            - aiida.qe.6.4
+            - aiida.vasp
+        expose:
+            - 22
+
+    aiida.qe:
+        image: poryoung/qe:6.5
+        hostname: aiida.qe
+        container_name: aiida.qe
+        command:
+            - /bin/sh
+            - -c
+            - |
+                echo root:docker_qe | chpasswd &
+                ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa -q &
+                sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes /' /etc/ssh/sshd_config &
+                /etc/init.d/ssh restart &
+                echo "source /opt/intel/mkl/bin/mklvars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/impi/2018.4.274/bin64/mpivars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/bin/compilervars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/compilers_and_libraries_2018.5.274/linux/bin/iccvars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/compilers_and_libraries_2018.5.274/linux/bin/ifortvars.sh intel64" >> /root/.bashrc &&
+                tail -F /dev/null
+        expose:
+            - 22
+    aiida.qe.6.4:
+        image: liu/qe:6.4
+        hostname: aiida.qe.6.4
+        container_name: aiida.qe.6.4
+        command:
+            - /bin/sh
+            - -c
+            - |
+                echo root:docker_qe | chpasswd &
+                ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa -q &
+                sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes /' /etc/ssh/sshd_config &
+                /etc/init.d/ssh restart &
+                echo "source /opt/intel/mkl/bin/mklvars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/impi/2018.4.274/bin64/mpivars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/bin/compilervars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/compilers_and_libraries_2018.5.274/linux/bin/iccvars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/compilers_and_libraries_2018.5.274/linux/bin/ifortvars.sh intel64" >> /root/.bashrc &&
+                tail -F /dev/null
+        expose:
+            - 22
+    aiida.vasp:
+        image: poryoung/vasp:5.4.4
+        hostname: aiida.vasp
+        container_name: aiida.vasp
+        command:
+            - /bin/sh
+            - -c
+            - |
+                echo root:docker_vasp | chpasswd &
+                ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa -q &
+                sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes /' /etc/ssh/sshd_config &
+                /etc/init.d/ssh restart &
+                echo "source /opt/intel/mkl/bin/mklvars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/impi/2018.4.274/bin64/mpivars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/bin/compilervars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/compilers_and_libraries_2018.5.274/linux/bin/iccvars.sh intel64" >> /root/.bashrc &&
+                echo "source /opt/intel/compilers_and_libraries_2018.5.274/linux/bin/ifortvars.sh intel64" >> /root/.bashrc &&
+                tail -F /dev/null
+        expose:
+            - 22

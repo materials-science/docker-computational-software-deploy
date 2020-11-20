@@ -1,0 +1,6 @@
+.vscode
+
+base/parallel*
+qe/qe-6.5
+vasp/vasp.5*
+aiida/test

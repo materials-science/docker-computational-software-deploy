@@ -1,0 +1,20 @@
+---
+profile: container
+email: ias@szu.edu.cn
+first_name: ias
+last_name: ias
+institution: ias
+db_host: aiida.postgres
+db_port: 5432
+db_name: aiida
+db_username: aiida
+db_password: aiida
+db_engine: postgresql_psycopg2
+db_backend: django
+broker_protocol: amqp
+broker_username: aiida
+broker_password: aiida
+broker_host: aiida.rabbitmq
+broker_virtual_host: ""
+broker_port: 5672
+repository: /workdir

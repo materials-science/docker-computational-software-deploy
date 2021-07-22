@@ -2,8 +2,8 @@ FROM ubuntu:16.04
 
 WORKDIR /workdir
 
-RUN mv /etc/apt/sources.list /etc/apt/sources.list.old \
-    sed -i s@/archive.ubuntu.com/@/mirrors.aliyun.com/@g /etc/apt/sources.list \
+RUN cp /etc/apt/sources.list /etc/apt/sources.list.old \
+    && sed -i s@/archive.ubuntu.com/@/mirrors.aliyun.com/@g /etc/apt/sources.list \
     && apt-get update \
     && apt-get install -y \
         apt-transport-https \
